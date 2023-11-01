@@ -1,0 +1,35 @@
+flag_management:
+  default_rules: # the rules that will be followed for any flag added, generally
+    carryforward: true
+    statuses:
+      - type: project
+        target: 80%
+        threshold: 1%
+      - type: patch
+        target: 80%
+
+coverage:  
+  status:
+    project:
+      default:
+        threshold: 75%
+        paths:
+          - "pyvts"
+        branches:
+          - main
+    patch:
+      default:
+        # basic
+        target: 80%
+        threshold: 50%
+        base: auto 
+        flags: 
+          - unit
+        paths: 
+          - "pyvts"
+       # advanced settings
+        branches: 
+          - main
+        if_ci_failed: error  #success, failure, error, ignore
+        informational: false
+        only_pulls: false
