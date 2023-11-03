@@ -1,7 +1,11 @@
-from VTS_tools.examples.vts_tools import Hotkeyrequire, send_hotkey_request, set_parameter_value
 import pyvts
-import threading
 import time
+
+plugin_info = {
+    "plugin_name": "trigger hotkey",
+    "developer": "OverHome",
+    "authentication_token_path": "./pyvts_token.txt",
+}
 
 hotkeyname_list = [ 'OO眼.exp3.json', 'Scene1.exp3.json', '压扁.exp3.json', '堵嘴.exp3.json', '屑.exp3.json', 
                     '恐怕.exp3.json', '星星眼.exp3.json', '汗.exp3.json', '爱心眼.exp3.json', '生气皱眉.exp3.json', 
@@ -15,11 +19,6 @@ hotkey_list = ['83a2d987f7064642b7a9d3640274333b', '06826505889b40678302597311c7
                'a18ce5e4d0a144ac9b4a0805241048c8', '70f8c48382634faba50555b76940cd72', 'd2894537a77a43238df478324cd55a55', 
                'c292a2b25b424c48bf177e64db22cdc7', 'b6157183d1d94b1eaecfa8dd28522abe', '8ee59d635dd041ccb2335280cf7fff9d', 
                'e217ac7c24b540ebb72fdfe11d42479c', 'da76c120eb0745a9a2621a8c0ea4fde7', 'cf9269def5be447ea9b6c44a2ef34ef8']
-
-
-#hotkey = 0
-#asyncio_VTS_thread = threading.Thread(target=lambda: asyncio.run(VTS_threading(hotkey)))
-#asyncio_VTS_thread.start()
 
 def VTS_motion_MODE(mode):
     # mode: happy / fear / anger / disgust / normal / love / sad  
@@ -53,59 +52,24 @@ def VTS_motion_MODE(mode):
     else:
         motion = 18 # 上下摇摆10
         expression = -1 
-    return motion, expression
+    return expression
 
 # Vtube Studio Function Module
 async def VTS_module(emotion, status= True):
 
-    End_VTS = False
-    plugin_info = {
-        "plugin_name": "trigger hotkey",
-        "developer": "OverHome",
-        "authentication_token_path": "./VTS_tools/examples/pyvts_token.txt",
-    }
     myvts = pyvts.vts(plugin_info=plugin_info)
     await myvts.connect()
     #await myvts.request_authenticate_token()  # get token
     await myvts.read_token() 
     await myvts.request_authenticate()  # use token
 
-    motion, expression_list = VTS_motion_MODE(emotion)
-    if status == True:
-        print('motion:', motion, 'expression:', expression_list)
-        print('Vtuber Move Now!')
-    else:
-        print('Vtuber Close!')
+    expression_list = VTS_motion_MODE(emotion)
+
     #expression mode
     if expression_list != -1:
         for i in range(len(expression_list)):
             send_hotkey_request = myvts.vts_request.requestTriggerHotKey(hotkey_list[expression_list[i]])
             await myvts.request(send_hotkey_request)
-            time.sleep(0.2)
+            time.sleep(0.01)
 
-    #motion mode
-    if status == True:
-        if motion != -1:
-            send_hotkey_request = myvts.vts_request.requestTriggerHotKey(hotkey_list[motion])
-            await myvts.request(send_hotkey_request)
-            time.sleep(0.2) 
-    
-    await myvts.close()
-
-# Vtube Studio Function Module
-async def VTS_threading(hotkey):
-    plugin_info = {
-        "plugin_name": "trigger hotkey",
-        "developer": "OverHome",
-        "authentication_token_path": "./VTS_tools/examples/pyvts_token.txt",
-    }
-    myvts = pyvts.vts(plugin_info=plugin_info)
-    await myvts.connect()
-    #await myvts.request_authenticate_token()  # get token
-    await myvts.read_token() 
-    await myvts.request_authenticate()  # use token
-    
-    print('Vtuber Move Now!')
-    send_hotkey_request = myvts.vts_request.requestTriggerHotKey(hotkey_list[hotkey])
-    await myvts.request(send_hotkey_request)
     await myvts.close()
